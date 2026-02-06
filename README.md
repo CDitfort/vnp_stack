@@ -66,18 +66,33 @@ export const Dashboard = () => {
 
 | Command | Description |
 | :--- | :--- |
-| `npm run dev` | Starts Vite dev server with HMR. |
+| `npm run dev` | Starts the Vite development server with HMR. |
+| `npm run build` | Standard production build. |
+| `npm run build:min` | Build with HTML/JS minification and Gzip/Brotli compression. |
+| `npm run build:obf` | Build with JavaScript obfuscation for code protection. |
 | `npm run build:min-obf` | The "Full Spartan": Minified, Obfuscated, and Compressed. |
-| `npm run preview` | Locally test your production build (Port 4173). |
-| `npm run clean` | Resets the project by deleting the `dist` folder. |
+| `npm run preview` | Preview the production build locally (Port 4173). |
+| `npm run clean` | Deletes the `dist` folder using `rimraf`. |
 
 ---
 
-## 🔒 Optimization Pipeline
-Running `npm run build:min-obf` triggers:
-1. **Terser:** Aggressive JS minification.
-2. **Obfuscator:** Protects logic from prying eyes.
-3. **Compression:** Generates `.br` and `.gz` files for instant load times.
+## 📚 Technical Documentation
+
+Master the core technologies driving the VNP Stack:
+
+* **[VanJS Documentation](https://vanjs.org/)**: Reactivity, state management, and DOM tags.
+* **[Navigo Documentation](https://github.com/krasimir/navigo)**: Hooks, parameters, and route matching.
+* **[Puter API Docs](https://docs.puter.com/)**: Cloud KV storage, hosting, and authentication.
+* **[Vite 7 Guide](https://vitejs.dev/)**: Bundling, environment variables, and plugins.
+* **[Normalize.css](https://necolas.github.io/normalize.css/)**: Standardized browser default styles.
+
+---
+
+## 🔒 Optimization & Security
+When running `npm run build:min-obf`, the stack executes:
+1. **Minification:** Terser shrinks variable names and removes whitespace.
+2. **Obfuscation:** Code logic is transformed to be unreadable to humans.
+3. **Compression:** Generates `.br` (Brotli) and `.gz` (Gzip) copies of all assets.
 
 ---
 Created by Christopher Ditfort. Licensed under ISC.
