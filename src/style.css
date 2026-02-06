@@ -1,0 +1,7 @@
+#app {
+    transition: opacity 0.25s ease;
+}
+
+.fade-out {
+    opacity: 0;
+}
