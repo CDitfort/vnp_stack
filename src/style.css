@@ -1,292 +1,32 @@
-#app {
-    transition: opacity 0.25s ease;
-}
-
-.fade-out {
-    opacity: 0;
-}
-/* 1. Scoped Background Logic */
-#app:has(.vnp-home-wrapper) {
-  background-color: #0a0a0a !important;
-  min-height: 100vh;
+/* Ensure the base canvas is always dark to prevent white flashes */
+html, body {
+  background-color: #050505;
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-/* 2. Full-Screen Container */
-.vnp-home-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  color: #ededed;
-  background: radial-gradient(circle at center, #111 0%, #0a0a0a 100%);
-  font-family: -apple-system, system-ui, sans-serif;
-  text-align: center;
+#app {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              filter 0.3s ease, 
+              opacity 0.3s ease;
+  will-change: transform, filter;
 }
 
-/* 3. Text Styling */
-.vnp-home-wrapper .vnp-title {
-  font-size: clamp(3.5rem, 12vw, 6rem);
-  margin: 1rem 0;
-  font-weight: 800;
-  letter-spacing: -4px;
-  line-height: 1;
-  background: linear-gradient(to bottom, #fff 40%, #777);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: block;
+/* The "Out" state: Slightly shrunk and blurred, but not fully transparent */
+.fade-out {
+  opacity: 0.4;
+  filter: blur(1px) brightness(0.5);
+  transform: scale(0.98);
 }
 
-.vnp-home-wrapper .vnp-subtitle {
-  font-size: 1.4rem;
-  color: #888;
-  margin-bottom: 3rem;
-  font-weight: 400;
+/* Shared Spinner Animation */
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
 }
 
-.vnp-home-wrapper .vnp-badge {
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.05);
-  color: #aaa;
-  padding: 6px 16px;
-  border-radius: 100px;
-  border: 1px solid #222;
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-/* 4. Button Styling (Restored & Enhanced) */
-.vnp-home-wrapper .vnp-github-btn {
-  display: inline-block;
-  padding: 1rem 2.5rem;
-  background: #ffffff;
-  color: #000000 !important; /* Ensure text is black */
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px 0 rgba(255, 255, 255, 0.1);
-}
-
-.vnp-home-wrapper .vnp-github-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  background: #f0f0f0;
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
-}
-
-/* 5. Entrance Animation */
-.vnp-home-wrapper .home-content {
-  animation: vnpSwoosh 0.8s ease-out forwards;
-}
-
-@keyframes vnpSwoosh {
+/* Shared Swoosh Animation */
+@keyframes swoosh {
   0% { opacity: 0; transform: translateY(20px); }
   100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Container */
-.vnp-login-page {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: #0a0a0a;
-  color: #ededed;
-  font-family: -apple-system, system-ui, sans-serif;
-}
-
-/* Scoped Card */
-.vnp-login-page .vnp-login-card {
-  width: 100%;
-  max-width: 360px;
-  background: #111;
-  border: 1px solid #222;
-  border-radius: 12px;
-  padding: 3rem 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-.vnp-login-page .vnp-login-header h1 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 1rem;
-  letter-spacing: -0.5px;
-}
-
-.vnp-login-page .vnp-helper-text {
-  color: #888;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 2rem;
-}
-
-/* Primary Button */
-.vnp-login-page .vnp-puter-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 12px;
-  background: #fff;
-  color: #000;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.vnp-login-page .vnp-puter-btn:hover {
-  opacity: 0.9;
-}
-
-.vnp-login-page .vnp-puter-btn .btn-icon {
-  background: #007bff;
-  color: #fff;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 3px;
-  font-size: 0.7rem;
-  font-weight: 800;
-}
-
-.vnp-login-page .vnp-login-footer p {
-  margin-top: 2rem;
-  font-size: 0.75rem;
-  color: #444;
-}
-
-/* --- Dashboard & Loading UI --- */
-.vnp-dash-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0a0a0a;
-  color: white;
-  font-family: system-ui, -apple-system, sans-serif;
-}
-
-/* Spinner */
-.vnp-dash-page .vnp-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255,255,255,0.1);
-  border-top: 3px solid #007bff;
-  border-radius: 50%;
-  margin: 0 auto 15px;
-  animation: vnp-spin 1s linear infinite;
-}
-
-@keyframes vnp-spin { to { transform: rotate(360deg); } }
-
-.vnp-dash-page .vnp-dash-loading p {
-  color: #666;
-  font-size: 0.8rem;
-  letter-spacing: 1px;
-}
-
-/* Card */
-.vnp-dash-page .vnp-dash-card {
-  background: #111;
-  border: 1px solid #222;
-  padding: 3rem 2rem;
-  border-radius: 20px;
-  text-align: center;
-  max-width: 400px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-}
-
-.vnp-dash-page .vnp-user-badge {
-  color: #00ff88;
-  background: rgba(0, 255, 136, 0.1);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.vnp-dash-page h1 { margin: 1.5rem 0 0.5rem; font-size: 2rem; }
-.vnp-dash-page p { color: #FFF; margin-bottom: 2rem; }
-
-.vnp-dash-page .vnp-logout-btn {
-  background: #ff4757;
-  color: white;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.vnp-dash-page .vnp-logout-btn:hover { transform: scale(1.05); }
-
-/* --- Final Sleek Header Alignment --- */
-.vnp-navbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 50px;
-  background: #000;
-  border-bottom: 1px solid #1a1a1a;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Vertical center for the wrapper */
-  z-index: 1000;
-  padding: 0 1.5rem;
-  box-sizing: border-box;
-}
-
-.vnp-nav-content {
-  width: 100%;
-  max-width: 1100px;
-  display: flex;
-  align-items: center; /* Vertical center for the content */
-  justify-content: space-between;
-}
-
-.vnp-nav-logo {
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: #fff;
-  /* Aggressive Reset */
-  margin: 0 !important; 
-  padding: 0 !important;
-  display: flex; 
-  align-items: center;
-  height: 50px; /* Force it to match the navbar height */
-  letter-spacing: 0.05rem;
-  font-style: italic;
-  cursor: default;
-  line-height: 1;
-}
-
-.vnp-nav-links {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  height: 50px; /* Match navbar height */
-}
-
-.vnp-nav-logout-trigger {
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%; /* Fill the 50px height to stay centered */
-  transition: color 0.2s ease;
-}
-
-.vnp-nav-logout-trigger:hover {
-  color: #fff;
 }

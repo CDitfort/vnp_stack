@@ -1,0 +1,45 @@
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 50px;
+  background: #000;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.content {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+}
+
+.logo {
+  font-size: 0.85rem;
+  color: #fff;
+  font-style: italic;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.logoutTrigger {
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.navItem {
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+}

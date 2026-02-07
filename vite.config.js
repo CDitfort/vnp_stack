@@ -12,10 +12,26 @@ export default defineConfig(({ mode }) => {
     root: ".",
     publicDir: "public",
     
-    // 🛠️ ADDED: Development Server Config
+    // 🛠️ 1. PATH ALIASES
+    // This allows you to use '@' to refer to your 'src' directory
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "src"),
+      },
+    },
+
+    // 🎨 2. CSS MODULE CONFIG
+    css: {
+      modules: {
+        // This allows you to write .home-wrapper in CSS 
+        // but access it as s.homeWrapper in JS
+        localsConvention: "camelCaseOnly",
+      },
+    },
+
     server: {
       port: 5173,
-      historyApiFallback: true, // Redirects 404s to index.html in dev
+      historyApiFallback: true, 
     },
 
     plugins: [
