@@ -4,6 +4,9 @@ export const APP_CONFIG = {
   // Set to 'false' for Small Business/SEO (clean URLs, requires server config)
   USE_HASH_ROUTING: true, 
 
+  // 🚪 Default landing spot for unauthenticated users on protected pages/routes
+  AUTH_REDIRECT: "/login",
+
   // Default SEO fallback
   DEFAULT_SEO: {
     title: "VNP Forge",

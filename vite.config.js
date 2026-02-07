@@ -5,18 +5,23 @@ import { compression } from 'vite-plugin-compression2';
 import obfuscator from 'vite-plugin-javascript-obfuscator';
 
 export default defineConfig(({ mode }) => {
-  // Logic to determine what to do based on the --mode flag
   const isMinify = mode === "min" || mode === "min-obf";
   const isObfuscate = mode === "obf" || mode === "min-obf";
 
   return {
     root: ".",
     publicDir: "public",
+    
+    // 🛠️ ADDED: Development Server Config
+    server: {
+      port: 5173,
+      historyApiFallback: true, // Redirects 404s to index.html in dev
+    },
+
     plugins: [
       createHtmlPlugin({
         minify: isMinify,
       }),
-      // Custom plugin to move the main.js script to the bottom of <body>
       {
         name: "force-bundle-to-bottom",
         enforce: "post",
@@ -33,7 +38,6 @@ export default defineConfig(({ mode }) => {
           return html;
         },
       },
-      // 1. OBFUSCATE: Runs during the build process
       ...(isObfuscate ? [
         obfuscator({
           options: {
@@ -44,7 +48,6 @@ export default defineConfig(({ mode }) => {
           },
         })
       ] : []),
-      // 2. COMPRESS: Runs LAST so it compresses the obfuscated code
       ...(isMinify ? [
         compression({
           algorithm: 'gzip',
