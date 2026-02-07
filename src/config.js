@@ -1,13 +1,28 @@
 // src/config.js
 export const APP_CONFIG = {
-  // Set to 'true' for AppSumo SaaS (easy setup, no server config)
-  // Set to 'false' for Small Business/SEO (clean URLs, requires server config)
   USE_HASH_ROUTING: true, 
-
-  // 🚪 Default landing spot for unauthenticated users on protected pages/routes
   AUTH_REDIRECT: "/login",
 
-  // Default SEO fallback
+  // 🗺️ Sitemap Control
+  SITE_MAP: {
+    ENABLED: true, // 🛠️ Toggle sitemap generation
+    hostname: "https://your-domain.com", 
+    routes: ["/", "/login", "/privacy", "/terms"],
+    exclude: ["/dashboard"]
+  },
+
+  // 🤖 Robots Control
+  ROBOTS: {
+    ENABLED: true, // 🛠️ Toggle robots.txt generation
+    policies: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: ["/dashboard", "/assets/"]
+      }
+    ]
+  },
+
   DEFAULT_SEO: {
     title: "VNP Forge",
     description: "Ultra-fast AI Site Builder",

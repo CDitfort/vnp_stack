@@ -4,37 +4,31 @@ import s from "./Navbar.module.css";
 const { nav, div, p, a } = van.tags;
 
 export const Navbar = (props = {}) => {
-  // 1. Destructure all the props we need with defaults
   const { 
-    logoText = "Protected Route Example",
-    linkText = "Login",       // Default text
-    linkTarget = "/login",    // Default destination
-    isLogout = false          // New flag to handle sign-out logic
+    logoText = "VNP Stack",
+    linkText = "Login", 
+    linkTarget = "/login",
+    isLogout = false 
   } = props;
-  
-  const handleClick = async (e) => {
-    e.preventDefault(); // Prevent standard browser behavior
-    
-    if (isLogout) {
-      // If this is a logout link, clear the session first
-      await window.puter.auth.signOut();
-      window.router.navigate("/");
-    } else {
-      // Otherwise, just go to the target page
-      window.router.navigate(linkTarget);
-    }
+
+  // We still use a small handler for Logout because it involves an API call
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    await window.puter.auth.signOut();
+    window.router.navigate("/");
   };
 
   return nav({ class: s.navbar },
     div({ class: s.content },
       p({ class: s.logo }, logoText), 
-      
       div({ class: s.links },
-        // 2. Use the variables from props here!
-        a({ 
-          class: s.navItem, 
-          onclick: handleClick 
-        }, linkText)
+        isLogout 
+          ? a({ class: s.navItem, onclick: handleLogout }, "Logout")
+          : a({ 
+              class: s.navItem, 
+              href: linkTarget,   // 🛠️ SEO loves this
+              "data-navigo": ""   // 🛠️ Navigo hijacks this
+            }, linkText)
       )
     )
   );
