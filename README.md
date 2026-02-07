@@ -23,6 +23,88 @@ This stack uses **Hash Routing** (`/#/page`).
 
 ---
 
+## 🌍 SEO & Routing Modes
+
+The VNP Stack features a "Virtual SEO Engine" that allows you to swap metadata (Title, Description, Keywords) dynamically during navigation.
+
+### 1. Configuration (`src/config.js`)
+Toggle between **SaaS Mode** (easy setup) and **SEO Mode** (best for indexing) in your central config:
+
+```javascript
+export const APP_CONFIG = {
+  // ✅ Set to 'true' for Hash Routing (e.g., [site.com/#/dashboard](https://site.com/#/dashboard))
+  // 🚀 Set to 'false' for Path Routing (e.g., [site.com/dashboard](https://site.com/dashboard))
+  USE_HASH_ROUTING: true, 
+
+  DEFAULT_SEO: {
+    title: "VNP Forge",
+    description: "Ultra-fast AI Site Builder",
+    keywords: "vanjs, puter, spa"
+  }
+};
+
+### 2. Implementation
+The `render` function in `main.js` merges your global defaults with page-specific data. This ensures that even if you only provide a title, the description and keywords fall back to your brand defaults.
+
+```javascript
+// src/main.js
+const render = (page, seoConfig = {}) => {
+  // Merges DEFAULT_SEO with the specific page config
+  updateSEO({
+    ...APP_CONFIG.DEFAULT_SEO,
+    ...seoConfig
+  });
+
+  app.replaceChildren(page());
+};
+
+// Usage in Routes
+router
+  .on("/", () => render(Home)) // Uses all defaults
+  .on("/dashboard", () => render(Dashboard, { 
+    title: "User Dashboard",
+    description: "Manage your VNP projects here." 
+  }))
+  .resolve();
+```
+
+### 3. Choosing Your Mode
+
+| Feature | **SaaS Mode (Hash: true)** | **SEO Mode (Path: false)** |
+| :--- | :--- | :--- |
+| **URL Format** | `yoursite.com/#/dashboard` | `yoursite.com/dashboard` |
+| **SEO Indexing** | Primarily the Home Page. | Every sub-page is indexed by Google. |
+| **Setup Level** | **Zero Config.** Works on any host. | **Server Config Required.** |
+| **Best For** | Apps, Dashboards, Internal Tools. | Business Sites, Blogs, Portfolios. |
+
+
+
+---
+
+## ⚠️ Critical: Server Configuration for Path Routing
+
+If you choose to set `USE_HASH_ROUTING: false`, you **must** configure your web server or hosting provider (Puter, Netlify, Vercel, etc.) to handle "Catch-all" redirects.
+
+### The Problem
+In a Single Page Application (SPA), the browser handles all the routing logic. However, if a user refreshes the page while at `yoursite.com/dashboard`, or types that URL directly into the bar, the server will look for a physical folder or file named `/dashboard`. Since that doesn't exist, the server will return a **404 Not Found** error.
+
+### The Fix: "Catch-All" Redirects
+You must tell your server: *"If you don't find a file, just send `index.html` anyway."* Once `index.html` loads, the **Navigo** router will wake up, look at the URL path, and render the correct view.
+
+#### How to set this up on common hosts:
+* **Puter Hosting:** In your hosting settings or `puter.json` config, set the **Error Document** (or 404 fallback) to `/index.html`.
+* **Netlify:** Create a file named `_redirects` in your `public` folder with the following line:
+    `/* /index.html  200`
+* **Vercel:** Add a `vercel.json` file to your root:
+    ```json
+    { "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }
+    ```
+* **Apache (.htaccess):** `FallbackResource /index.html`
+* **Nginx:**
+    `try_files $uri $uri/ /index.html;`
+
+---
+
 ## 🏗️ Expanding the Stack
 
 ### 1. Creating a Component
