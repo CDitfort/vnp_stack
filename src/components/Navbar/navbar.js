@@ -1,20 +1,21 @@
 import van from "vanjs-core";
+import { userStore } from "@/stores/user.js";
 import s from "./Navbar.module.css";
 
 const { nav, div, p, a } = van.tags;
 
 export const Navbar = (props = {}) => {
-  const { 
+  const {
     logoText = "VNP Stack",
-    linkText = "Login", 
+    linkText = "Login",
     linkTarget = "/login",
-    isLogout = false 
+    isLogout = false
   } = props;
 
-  // We still use a small handler for Logout because it involves an API call
   const handleLogout = async (e) => {
     e.preventDefault();
     await window.puter.auth.signOut();
+    userStore.reset();
     window.router.navigate("/");
   };
 
