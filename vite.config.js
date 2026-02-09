@@ -50,10 +50,11 @@ export default defineConfig(({ mode }) => {
   const shouldRunSEO = APP_CONFIG.SITE_MAP?.ENABLED || APP_CONFIG.ROBOTS?.ENABLED;
 
   // Auto-discover routes and apply exclude filter (prefix matching)
+  // Filter out "/" to avoid duplicate with the plugin's default root route
   const excludeList = APP_CONFIG.SITE_MAP?.exclude || [];
   const sitemapRoutes = shouldRunSEO
     ? discoverPageRoutes(resolve(__dirname, 'src/pages')).filter(
-        (route) => !excludeList.some(
+        (route) => route !== '/' && !excludeList.some(
           (ex) => route === ex || route.startsWith(ex + '/')
         )
       )
@@ -121,6 +122,9 @@ export default defineConfig(({ mode }) => {
       ] : []),
 
       // 📦 4. COMPRESSION (Conditional)
+      // Note: Running two compression instances (gzip + brotli) produces cosmetic
+      // "overwrites a previously emitted file" warnings. These are harmless —
+      // all compressed assets are generated correctly.
       ...(isMinify ? [
         compression({ algorithm: 'gzip', exclude: [/\.(br)$/, /\.(gz)$/] }),
         compression({ algorithm: 'brotliCompress', exclude: [/\.(br)$/, /\.(gz)$/] }),

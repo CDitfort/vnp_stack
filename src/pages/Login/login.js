@@ -1,5 +1,5 @@
 import van from "vanjs-core";
-import s from "./Login.module.css";
+import s from "./login.module.css";
 
 const { div, h1, p, button, span } = van.tags;
 

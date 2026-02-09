@@ -1,7 +1,7 @@
 import van from "vanjs-core";
 import { Navbar } from "@/components/Navbar/navbar.js";
-import { Footer } from "@/components/Footer/Footer.js";
-import s from "./Home.module.css";
+import { Footer } from "@/components/Footer/footer.js";
+import s from "./home.module.css";
 
 const { div, h1, p, a, span } = van.tags;
 

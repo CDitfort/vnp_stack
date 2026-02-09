@@ -1,6 +1,6 @@
 import van from "vanjs-core";
 import { userStore } from "@/stores/user.js";
-import s from "./Navbar.module.css";
+import s from "./navbar.module.css";
 
 const { nav, div, p, a } = van.tags;
 

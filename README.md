@@ -84,7 +84,7 @@ No manual route registration is needed. Any depth of nesting is supported automa
 ```javascript
 // src/pages/Settings/settings.js
 import van from "vanjs-core";
-import s from "./Settings.module.css";
+import s from "./settings.module.css";
 
 const { div, h1, p } = van.tags;
 
@@ -148,7 +148,7 @@ Components are reusable UI functions in `src/components/`. They accept props and
 ```javascript
 // src/components/Alert/alert.js
 import van from "vanjs-core";
-import s from "./Alert.module.css";
+import s from "./alert.module.css";
 
 const { div, p, button } = van.tags;
 
@@ -236,6 +236,12 @@ userStore.username.val;                    // ""
 
 // Write a single key
 userStore.username.val = "Chris";
+
+// Functional update on a single key
+userStore.username.update(name => name.toUpperCase());
+
+// Reset a single key to its initial value
+userStore.username.reset();    // back to ""
 
 // Bulk write multiple keys
 userStore.set({ username: "Chris", isLoggedIn: true });
@@ -555,7 +561,7 @@ When a user refreshes or directly visits a sub-page like `yoursite.com/dashboard
 Every page and component uses a co-located `.module.css` file for scoped styles. Class names are locally scoped at build time, preventing collisions across the app.
 
 ```css
-/* src/pages/Home/Home.module.css */
+/* src/pages/Home/home.module.css */
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -570,7 +576,7 @@ Every page and component uses a co-located `.module.css` file for scoped styles.
 
 ```javascript
 // src/pages/Home/home.js
-import s from "./Home.module.css";
+import s from "./home.module.css";
 
 const Home = () => {
   return div({ class: s.wrapper },

@@ -1,5 +1,5 @@
 import van from "vanjs-core";
-import s from "./NotFound.module.css";
+import s from "./notfound.module.css";
 
 const { div, h1, p, a } = van.tags;
 

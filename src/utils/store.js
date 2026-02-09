@@ -13,7 +13,12 @@ export const map = (initial) => {
   const store = {};
   const _keys = Object.keys(initial);
 
-  for (const key of _keys) store[key] = van.state(initial[key]);
+  for (const key of _keys) {
+    const s = van.state(initial[key]);
+    s.update = (fn) => { s.val = fn(s.val); };
+    s.reset = () => { s.val = initial[key]; };
+    store[key] = s;
+  }
 
   store.get = () => Object.fromEntries(_keys.map(k => [k, store[k].val]));
   store.set = (update) => {
