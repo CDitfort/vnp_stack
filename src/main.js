@@ -14,21 +14,36 @@ window.router = router;
 const app = document.getElementById("app");
 
 /**
- * 🤖 2. AUTOMATED PAGE IMPORTS
+ * 🤖 2. AUTOMATED PAGE IMPORTS (Nested Folder Support)
+ * ------------------------------------------------------------------
+ * Routes are derived from the folder hierarchy under /pages.
+ *   pages/Home/home.js                     → /
+ *   pages/Dashboard/dashboard.js           → /dashboard
+ *   pages/Dashboard/Profile/profile.js     → /dashboard/profile
+ *   pages/Dashboard/Profile/Edit/edit.js   → /dashboard/profile/edit
+ * Any depth of nesting is supported automatically.
  */
 const pageModules = import.meta.glob("./pages/**/*.js", { eager: true });
 const Pages = {};
 
 Object.entries(pageModules).forEach(([path, module]) => {
-  const parts = path.split('/');
-  const fileName = parts.pop().replace('.js', '');
-  
+  const relativePath = path.replace('./pages/', '');
+  const segments = relativePath.split('/');
+  const fileName = segments.pop().replace('.js', '');
+
   const exportName = Object.keys(module).find(
     (key) => key.toLowerCase() === fileName.toLowerCase()
   );
-  
+
   const finalName = exportName || fileName;
-  Pages[finalName] = module[finalName];
+
+  // Build route from folder hierarchy (not the filename)
+  let route = '/' + segments.map(s => s.toLowerCase()).join('/');
+
+  // "Home" folder maps to root
+  if (route === '/home') route = '/';
+
+  Pages[route] = { component: module[finalName], name: finalName };
 });
 
 /**
@@ -57,16 +72,17 @@ const render = (page, seoConfig = {}) => {
 
 /**
  * 🤖 4. UNIFIED REGISTRATION ENGINE
+ * ------------------------------------------------------------------
+ * Routes are now keyed by their full path (e.g. "/dashboard/profile").
+ * Override any route in routes.js using the same path as the key.
  */
-Object.keys(Pages).forEach((name) => {
-  const component = Pages[name];
-  const path = name.toLowerCase() === "home" ? "/" : `/${name.toLowerCase()}`;
-  const hooks = routeOverrides[path] || {};
+Object.entries(Pages).forEach(([route, { component, name }]) => {
+  const hooks = routeOverrides[route] || {};
 
   if (name.toLowerCase() === "notfound") {
     router.notFound(() => render(component, component.seo || {}), hooks);
   } else {
-    router.on(path, () => render(component, component.seo || {}), hooks);
+    router.on(route, () => render(component, component.seo || {}), hooks);
   }
 });
 

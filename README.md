@@ -11,7 +11,7 @@ The **VNP Stack** is a lightweight Single Page Application (SPA) template built 
 - **Puter** — Cloud-native authentication, key-value storage, and static hosting.
 - **Store System** — Built-in state management (`atom`, `map`, `computed`) layered on VanJS primitives. No subscriptions, no cleanup.
 - **Vite 7 Pipeline** — Four build modes with optional Brotli/Gzip compression and JS obfuscation.
-- **Auto Page Discovery** — Drop a file in `src/pages/` and it becomes a route automatically.
+- **Auto Page Discovery** — Drop a folder in `src/pages/` and it becomes a route automatically. Nested folders create nested routes to any depth.
 - **CSS Modules** — Scoped styles per page and component by default.
 - **SEO Metadata** — Per-page title, description, and keywords with config-driven sitemap and robots.txt generation.
 
@@ -30,6 +30,11 @@ src/
 │   │   ├── home.js
 │   │   └── home.module.css
 │   ├── Dashboard/
+│   │   ├── dashboard.js
+│   │   ├── dashboard.module.css
+│   │   └── Profile/          Nested folders = nested routes
+│   │       ├── profile.js
+│   │       └── profile.module.css
 │   └── ...
 ├── stores/              Shared reactive state (atom, map, computed)
 │   └── user.js
@@ -80,16 +85,20 @@ Dev server starts at `http://localhost:5173`.
 
 ## Pages & Auto-Registration
 
-Every `.js` file inside `src/pages/` is automatically discovered and registered as a route. The filename determines the path:
+Every `.js` file inside `src/pages/` is automatically discovered and registered as a route. The **folder hierarchy** determines the path:
 
 | File | Route |
 | :--- | :--- |
 | `src/pages/Home/home.js` | `/` |
 | `src/pages/Dashboard/dashboard.js` | `/dashboard` |
+| `src/pages/Dashboard/Profile/profile.js` | `/dashboard/profile` |
+| `src/pages/Dashboard/Profile/Edit/edit.js` | `/dashboard/profile/edit` |
 | `src/pages/Privacy/privacy.js` | `/privacy` |
 | `src/pages/NotFound/notfound.js` | 404 fallback |
 
-No manual route registration is needed. To add a new page:
+No manual route registration is needed. Any depth of nesting is supported automatically.
+
+### Adding a Top-Level Page
 
 1. Create a folder in `src/pages/` (e.g., `Settings/`).
 2. Add a `.js` file with a matching name (e.g., `settings.js`).
@@ -116,6 +125,42 @@ Settings.seo = {
 ```
 
 The route `/settings` is now live. No other files need to change.
+
+### Adding a Nested Page
+
+To create a route like `/dashboard/profile`, add a subfolder inside the parent page folder:
+
+```
+src/pages/
+└── Dashboard/
+    ├── dashboard.js
+    ├── dashboard.module.css
+    └── Profile/
+        ├── profile.js
+        └── profile.module.css
+```
+
+```javascript
+// src/pages/Dashboard/Profile/profile.js
+import van from "vanjs-core";
+import s from "./profile.module.css";
+
+const { div, h1, p } = van.tags;
+
+export const Profile = () => {
+  return div({ class: s.wrapper },
+    h1("Profile"),
+    p("Your profile page content here.")
+  );
+};
+
+Profile.seo = {
+  title: "Profile | My App",
+  description: "View and edit your profile."
+};
+```
+
+The route `/dashboard/profile` (or `/#/dashboard/profile` with hash routing) is now live. You can nest further — a `Profile/Edit/edit.js` subfolder would create `/dashboard/profile/edit`, and so on to any depth.
 
 ---
 
@@ -333,7 +378,7 @@ Both the page and the navbar reference the same reactive state. When one writes,
 
 ## Route Overrides & Hooks
 
-While pages are auto-registered, you can attach middleware and lifecycle hooks to any route in `src/routes.js`. Keys must match the lowercase page name prefixed with `/`.
+While pages are auto-registered, you can attach middleware and lifecycle hooks to any route in `src/routes.js`. Keys must match the route path derived from the folder structure (e.g., `/dashboard`, `/dashboard/profile`).
 
 ```javascript
 // src/routes.js
@@ -342,6 +387,11 @@ import { authHook } from "./utils/auth.js";
 export const routeOverrides = {
   // Require authentication before entering this route
   "/dashboard": {
+    before: authHook
+  },
+
+  // Protect a nested route independently
+  "/dashboard/profile": {
     before: authHook
   },
 
@@ -359,6 +409,8 @@ export const routeOverrides = {
   }
 };
 ```
+
+Each route is independent — adding hooks to `/dashboard` does **not** automatically apply them to `/dashboard/profile`. Override each nested route explicitly as needed.
 
 Available Navigo hooks:
 
