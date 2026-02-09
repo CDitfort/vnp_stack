@@ -71,13 +71,75 @@ const render = (page, seoConfig = {}) => {
 };
 
 /**
- * 🤖 4. UNIFIED REGISTRATION ENGINE
+ * 🔗 4. CASCADING HOOK RESOLVER
  * ------------------------------------------------------------------
- * Routes are now keyed by their full path (e.g. "/dashboard/profile").
- * Override any route in routes.js using the same path as the key.
+ * Merges hooks from cascading ancestor routes with a route's own hooks.
+ * Parent hooks run first. A parent calling done(false) blocks the chain.
+ * Only routes with `cascading: true` in routeOverrides propagate to children.
+ */
+const resolveHooks = (route) => {
+  const cascadingAncestors = Object.entries(routeOverrides)
+    .filter(([parentRoute, config]) => {
+      if (!config.cascading) return false;
+      return route === parentRoute || route.startsWith(parentRoute + '/');
+    })
+    .sort(([a], [b]) => a.length - b.length);
+
+  const ownOverrides = routeOverrides[route] || {};
+  const hookTypes = ['before', 'after', 'leave', 'already'];
+  const merged = {};
+
+  for (const type of hookTypes) {
+    const chain = [];
+
+    for (const [, config] of cascadingAncestors) {
+      if (config[type]) chain.push(config[type]);
+    }
+
+    if (ownOverrides[type]) {
+      const alreadyIncluded = cascadingAncestors.some(([p]) => p === route);
+      if (!alreadyIncluded) chain.push(ownOverrides[type]);
+    }
+
+    if (chain.length === 0) continue;
+    if (chain.length === 1) { merged[type] = chain[0]; continue; }
+
+    if (type === 'before') {
+      merged.before = (done, params) => {
+        let i = 0;
+        const next = (proceed) => {
+          if (proceed === false) { done(false); return; }
+          if (++i < chain.length) chain[i](next, params);
+          else done();
+        };
+        chain[0](next, params);
+      };
+    } else if (type === 'leave') {
+      merged.leave = (done) => {
+        let i = 0;
+        const next = (proceed) => {
+          if (proceed === false) { done(false); return; }
+          if (++i < chain.length) chain[i](next);
+          else done(true);
+        };
+        chain[0](next);
+      };
+    } else {
+      merged[type] = (params) => chain.forEach((fn) => fn(params));
+    }
+  }
+
+  return merged;
+};
+
+/**
+ * 🤖 5. UNIFIED REGISTRATION ENGINE
+ * ------------------------------------------------------------------
+ * Routes are keyed by their full path (e.g. "/dashboard/profile").
+ * Hooks are resolved via resolveHooks() which handles cascading.
  */
 Object.entries(Pages).forEach(([route, { component, name }]) => {
-  const hooks = routeOverrides[route] || {};
+  const hooks = resolveHooks(route);
 
   if (name.toLowerCase() === "notfound") {
     router.notFound(() => render(component, component.seo || {}), hooks);

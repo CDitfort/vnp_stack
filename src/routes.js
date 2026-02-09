@@ -21,22 +21,34 @@ import { authHook } from "./utils/auth.js";
  * - 'after': (params) => {}        | Best for Analytics/Scroll logic.
  * - 'leave': (done) => {}          | Best for "Unsaved Changes" prompts.
  * - 'already': (params) => {}      | Runs if user is already on the page.
+ *
+ * 🔗 CASCADE MODE:
+ * Add `cascading: true` to any route override to automatically apply
+ * its hooks to ALL nested child routes. Parent hooks run first.
+ * A parent calling done(false) blocks the entire chain.
+ *
+ *   "/dashboard": { before: authHook, cascading: true }
+ *
+ * This means /dashboard/profile and /dashboard/profile/edit will
+ * both run authHook before their own hooks (if any).
+ * Without `cascading: true`, each route must be overridden independently.
  * ------------------------------------------------------------------
  */
 export const routeOverrides = {
-  // 🔐 Protected Routes
-  "/dashboard": { 
-    before: authHook 
+  // 🔐 Protected Routes (cascading applies authHook to all /dashboard/* children)
+  "/dashboard": {
+    before: authHook,
+    cascading: true
   },
 
   // 🛑 404 Configuration
-  "/notfound": { 
-    after: () => console.warn("🛑 404: User landed on an undefined route.") 
+  "/notfound": {
+    after: () => console.warn("🛑 404: User landed on an undefined route.")
   },
 
-  /* Example: Protect a nested route with auth:
+  /* Example: Add an additional hook to a nested route (parent hooks still run first):
   "/dashboard/profile": {
-    before: authHook
+    after: (params) => console.log("Profile page viewed")
   },
   */
 

@@ -385,14 +385,10 @@ While pages are auto-registered, you can attach middleware and lifecycle hooks t
 import { authHook } from "./utils/auth.js";
 
 export const routeOverrides = {
-  // Require authentication before entering this route
+  // Protect /dashboard AND all nested children (/dashboard/profile, etc.)
   "/dashboard": {
-    before: authHook
-  },
-
-  // Protect a nested route independently
-  "/dashboard/profile": {
-    before: authHook
+    before: authHook,
+    cascading: true
   },
 
   // Log 404 hits
@@ -410,7 +406,24 @@ export const routeOverrides = {
 };
 ```
 
-Each route is independent — adding hooks to `/dashboard` does **not** automatically apply them to `/dashboard/profile`. Override each nested route explicitly as needed.
+### Cascading Hooks
+
+Add `cascading: true` to any route override to automatically apply its hooks to **all** nested child routes. Parent hooks run first in the chain.
+
+| Config | Effect |
+| :--- | :--- |
+| `"/dashboard": { before: authHook }` | Only `/dashboard` is protected. Child routes are unaffected. |
+| `"/dashboard": { before: authHook, cascading: true }` | `/dashboard`, `/dashboard/profile`, `/dashboard/profile/edit`, etc. are all protected. |
+
+A child route can still define its own hooks — they run **after** the cascading parent hooks. If a parent hook calls `done(false)`, the entire chain is blocked and the child hooks never execute.
+
+```javascript
+// Parent cascades authHook to all children
+"/dashboard": { before: authHook, cascading: true },
+
+// This child also logs after rendering (authHook still runs first)
+"/dashboard/profile": { after: (params) => console.log("Profile viewed") },
+```
 
 Available Navigo hooks:
 
@@ -427,14 +440,14 @@ Available Navigo hooks:
 
 Authentication uses Puter's OAuth flow. The auth utility in `src/utils/auth.js` provides a Navigo `before` hook that redirects unauthenticated users.
 
-**Protecting a route:**
+**Protecting a route (and all its children):**
 
 ```javascript
 // src/routes.js
 import { authHook } from "./utils/auth.js";
 
 export const routeOverrides = {
-  "/dashboard": { before: authHook }
+  "/dashboard": { before: authHook, cascading: true }
 };
 ```
 
@@ -495,14 +508,16 @@ For apps, dashboards, and internal tools, these limitations are irrelevant — h
 
 ### Sitemap & Robots.txt
 
-Both are generated at build time via Vite plugins, controlled in `src/config.js`:
+Both are generated at build time via Vite plugins. Routes are **auto-discovered** from `src/pages/` — no manual listing required. The `notfound` page is excluded automatically.
+
+Use `exclude` to keep specific routes (and all their children) out of the sitemap:
 
 ```javascript
 SITE_MAP: {
   ENABLED: true,
   hostname: "https://your-domain.com",
-  routes: ["/", "/login", "/privacy", "/terms"],
-  exclude: ["/dashboard"]
+  // Routes auto-discovered from src/pages/ at build time.
+  exclude: ["/dashboard"]  // Also excludes /dashboard/profile, etc.
 },
 
 ROBOTS: {
@@ -515,7 +530,7 @@ ROBOTS: {
 }
 ```
 
-Set `ENABLED: false` on either to skip generation entirely.
+Set `ENABLED: false` on either to skip generation entirely. Adding a new page folder to `src/pages/` will automatically include it in the next build's sitemap.
 
 ---
 
@@ -648,8 +663,8 @@ export const APP_CONFIG = {
   SITE_MAP: {
     ENABLED: true,              // Generate sitemap.xml at build time
     hostname: "https://your-domain.com",
-    routes: ["/", "/login", "/privacy", "/terms"],
-    exclude: ["/dashboard"]
+    // Routes auto-discovered from src/pages/ — no manual list needed.
+    exclude: ["/dashboard"]     // Prefix match: also excludes children
   },
 
   ROBOTS: {
