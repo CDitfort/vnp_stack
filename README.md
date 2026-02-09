@@ -55,7 +55,7 @@ src/
 ### Using npx (recommended)
 
 ```bash
-npx create-vnp-app my-project
+npx create-vnp-app@latest my-project
 cd my-project
 npm install
 npm run dev
