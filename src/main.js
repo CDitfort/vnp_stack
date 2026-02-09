@@ -31,6 +31,10 @@ Object.entries(pageModules).forEach(([path, module]) => {
   const segments = relativePath.split('/');
   const fileName = segments.pop().replace('.js', '');
 
+  // Only register files whose name matches their parent folder (skip helpers/utils)
+  const parentFolder = segments[segments.length - 1];
+  if (!parentFolder || fileName.toLowerCase() !== parentFolder.toLowerCase()) return;
+
   const exportName = Object.keys(module).find(
     (key) => key.toLowerCase() === fileName.toLowerCase()
   );
@@ -49,12 +53,16 @@ Object.entries(pageModules).forEach(([path, module]) => {
 /**
  * 🎨 3. RENDER ENGINE (UPGRADED)
  */
+let pendingRender = null;
+
 const render = (page, seoConfig = {}) => {
   if (!page) {
     console.error("VNP Error: Component not found.");
     return;
   }
-  
+
+  if (pendingRender) clearTimeout(pendingRender);
+
   app.classList.add("fade-out");
 
   updateSEO({
@@ -62,11 +70,13 @@ const render = (page, seoConfig = {}) => {
     ...seoConfig
   });
 
-  setTimeout(() => {
+  pendingRender = setTimeout(() => {
+    pendingRender = null;
     // Standardize: If it's a function, call it; if it's already a node, use it.
     const content = typeof page === 'function' ? page() : page;
     app.replaceChildren(content);
     app.classList.remove("fade-out");
+    router.updatePageLinks();
   }, 200);
 };
 
@@ -151,26 +161,43 @@ Object.entries(Pages).forEach(([route, { component, name }]) => {
 /**
  * 🚀 5. INITIALIZATION GATEKEEPER
  */
+const PUTER_TIMEOUT = 5000;
+
 const initApp = () => {
-  if (window.puter) {
-    if (window.location.pathname !== "/" && APP_CONFIG.USE_HASH_ROUTING) {
+  const start = Date.now();
+
+  const boot = (hasPuter) => {
+    if (hasPuter && window.location.pathname !== "/" && APP_CONFIG.USE_HASH_ROUTING) {
       const { pathname, search } = window.location;
       window.location.replace(`/#${pathname}${search}`);
-      return; 
+      return;
     }
 
-    console.log("🚀 Puter SDK Ready - VNP Stack Initialized");
+    console.log(hasPuter
+      ? "🚀 Puter SDK Ready - VNP Stack Initialized"
+      : "⚠️ Puter SDK unavailable - VNP Stack Initialized without Puter"
+    );
 
     router.hooks({
       after: () => {
-        window.scrollTo(0, 0); 
+        window.scrollTo(0, 0);
       }
     });
 
-    router.resolve(); 
-  } else {
-    setTimeout(initApp, 50);
-  }
+    router.resolve();
+  };
+
+  const poll = () => {
+    if (window.puter) {
+      boot(true);
+    } else if (Date.now() - start > PUTER_TIMEOUT) {
+      boot(false);
+    } else {
+      setTimeout(poll, 50);
+    }
+  };
+
+  poll();
 };
 
 window.addEventListener('DOMContentLoaded', initApp);

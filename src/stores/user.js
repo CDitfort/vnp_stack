@@ -11,10 +11,15 @@ export const displayName = computed(() =>
 
 /** Sync user session from Puter into the store */
 export const syncSession = async () => {
-  const user = await window.puter.auth.getUser();
-  if (user) {
-    userStore.set({ username: user.username, isLoggedIn: true });
-    return true;
+  try {
+    const user = await window.puter.auth.getUser();
+    if (user) {
+      userStore.set({ username: user.username, isLoggedIn: true });
+      return true;
+    }
+    return false;
+  } catch (err) {
+    console.error("syncSession failed:", err);
+    return false;
   }
-  return false;
 };

@@ -7,8 +7,10 @@ export const NotFound = () =>
   div({ class: s.wrapper },
     h1({ class: s.errorCode }, "404"),
     p({ class: s.msg }, "This route exists only in the void."),
-    a({ 
-      class: s.homeBtn, 
-      onclick: (e) => { e.preventDefault(); window.router.navigate("/"); } 
+    a({
+      href: "/",
+      class: s.homeBtn,
+      "data-navigo": "",
+      onclick: (e) => { e.preventDefault(); window.router.navigate("/"); }
     }, "Return to Reality")
   );

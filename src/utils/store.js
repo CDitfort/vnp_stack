@@ -1,22 +1,32 @@
 import van from "vanjs-core";
 
+const clone = (v) => (typeof v === 'object' && v !== null) ? structuredClone(v) : v;
+
 /** atom — reactive primitive with reset and functional update */
 export const atom = (initial) => {
-  const s = van.state(initial);
-  s.reset = () => { s.val = initial; };
+  const s = van.state(clone(initial));
+  s.reset = () => { s.val = clone(initial); };
   s.update = (fn) => { s.val = fn(s.val); };
   return s;
 };
 
 /** map — reactive object where each key becomes a van.state */
+const RESERVED_KEYS = ['get', 'set', 'reset'];
+
 export const map = (initial) => {
   const store = {};
-  const _keys = Object.keys(initial);
+  const _keys = Object.keys(initial).filter((key) => {
+    if (RESERVED_KEYS.includes(key)) {
+      console.warn(`map(): "${key}" conflicts with a built-in helper and was skipped.`);
+      return false;
+    }
+    return true;
+  });
 
   for (const key of _keys) {
-    const s = van.state(initial[key]);
+    const s = van.state(clone(initial[key]));
     s.update = (fn) => { s.val = fn(s.val); };
-    s.reset = () => { s.val = initial[key]; };
+    s.reset = () => { s.val = clone(initial[key]); };
     store[key] = s;
   }
 
@@ -26,7 +36,7 @@ export const map = (initial) => {
       if (store[k]) store[k].val = v;
     }
   };
-  store.reset = () => { for (const k of _keys) store[k].val = initial[k]; };
+  store.reset = () => { for (const k of _keys) store[k].val = clone(initial[k]); };
 
   return store;
 };

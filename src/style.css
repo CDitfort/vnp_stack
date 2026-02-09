@@ -7,14 +7,14 @@ html, body {
 }
 
 #app {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              filter 0.3s ease, 
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.3s ease,
               opacity 0.3s ease;
-  will-change: transform, filter;
 }
 
 /* The "Out" state: Slightly shrunk and blurred, but not fully transparent */
 .fade-out {
+  will-change: transform, filter;
   opacity: 0.4;
   filter: blur(1px) brightness(0.5);
   transform: scale(0.98);

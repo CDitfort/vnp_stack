@@ -11,7 +11,7 @@ export const Dashboard = () => {
 
   syncSession().then((ok) => {
     if (ok) isReady.val = true;
-  });
+  }).catch(() => { isReady.val = true; });
 
   return div({ class: s.page },
     Navbar({
@@ -30,7 +30,7 @@ export const Dashboard = () => {
 
         return div({ class: s.card },
           span({ class: s.userBadge }, "Secure Session"),
-          h1(`Welcome, ${userStore.username.val}`),
+          h1(() => `Welcome, ${userStore.username.val}`),
           p("You are viewing a protected route. Use the link in the header to logout.")
         );
       }

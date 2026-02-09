@@ -140,7 +140,7 @@ export default defineConfig(({ mode }) => {
         external: ["@heyputer/puter.js"],
         output: {
           entryFileNames: "assets/js/main.js",
-          chunkFileNames: "assets/js/main.js",
+          chunkFileNames: "assets/js/[name]-[hash].js",
           assetFileNames: (assetInfo) => {
             if (assetInfo.name?.endsWith('.css')) return 'assets/css/screen.css';
             return 'assets/[name].[ext]';
