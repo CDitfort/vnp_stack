@@ -47,10 +47,34 @@ src/
 
 ## Quick Start
 
+### Using npx (recommended)
+
 ```bash
+npx create-vnp-app my-project
+cd my-project
 npm install
-npm run dev        # Dev server at http://localhost:5173
+npm run dev
 ```
+
+### Using npm create
+
+```bash
+npm create vnp-app my-project
+cd my-project
+npm install
+npm run dev
+```
+
+### Manual clone
+
+```bash
+git clone https://github.com/CDitfort/vnp_stack.git my-project
+cd my-project
+npm install
+npm run dev
+```
+
+Dev server starts at `http://localhost:5173`.
 
 ---
 
