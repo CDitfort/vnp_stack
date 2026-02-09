@@ -1,6 +1,6 @@
 {
   "name": "vnp_stack",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "description": "Ultra-lightweight SPA stack (VanJS + Navigo + Puter). Features a high-performance Vite pipeline with automated Brotli/Gzip compression and optional JavaScript obfuscation.",
   "main": "index.js",
   "scripts": {
